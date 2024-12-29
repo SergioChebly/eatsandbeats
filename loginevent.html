@@ -1,0 +1,55 @@
+<br>
+<br>
+<head><link rel="stylesheet" href="assets/css/login.css"></head>
+
+<div class="cont">
+    <div class="form1 sign-in">
+        <h1>Welcome</h1>
+        <label>
+            <span>Email</span>
+            <input type="email" />
+        </label>
+        <label>
+            <span>Password</span>
+            <input type="password" />
+        </label>
+        <p class="forgot-pass">Forgot password?</p>
+        <button type="button" class="submit">Sign In</button>
+    </div>
+    
+    
+</div>
+
+<script>
+     document.getElementById('loginForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const response = await fetch('/signin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          localStorage.setItem('isLoggedIn', true);
+          alert(data.message);
+          window.location.href = 'drop-your-events.html';
+        } else {
+          const error = await response.json();
+          alert(error.message);
+        }
+      } catch (err) {
+        console.error('Error:', err);
+      }
+    });
+  </script>
+  
+<script>
+    document.querySelector('.img__btn').addEventListener('click', function() {
+        document.querySelector('.cont').classList.toggle('s--signup');
+    });
+</script>

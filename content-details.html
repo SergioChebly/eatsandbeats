@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Search with Date and Time Picker</title>
+  <link rel="stylesheet" href="assets/css/content-details.css">
+  <!--font-awesome.min.css-->
+  <link rel="stylesheet" href="assets/css/font-awesome.min.css">
+
+  <!--linear icon css-->
+  <link rel="stylesheet" href="assets/css/linearicons.css">
+
+  <!--animate.css-->
+  <link rel="stylesheet" href="assets/css/animate.css">
+
+  <!--flaticon.css-->
+  <link rel="stylesheet" href="assets/css/flaticon.css">
+
+  <!--slick.css-->
+  <link rel="stylesheet" href="assets/css/slick.css">
+  <link rel="stylesheet" href="assets/css/slick-theme.css">
+
+  <!--bootstrap.min.css-->
+  <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+
+  <!-- bootsnav -->
+  <link rel="stylesheet" href="assets/css/bootsnav.css">
+
+  <!--style.css-->
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <!--responsive.css-->
+  <link rel="stylesheet" href="assets/css/responsive.css">
+  <style>
+    .categories-container,
+    .events-container,
+    .event-details {
+      margin: 20px 0;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+    }
+
+    .categories button {
+      margin: 5px;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .event-card {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid #ddd;
+      margin: 10px 0;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.2s;
+    }
+
+    .event-card:hover {
+      background-color: #f1f1f1;
+    }
+
+    .event-thumbnail {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      margin-right: 15px;
+    }
+
+    .event-info h3 {
+      margin: 0;
+    }
+
+    .event-card {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid #ddd;
+      margin: 10px 0;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: transform 0.3s, box-shadow 0.3s;
+      background: #fff;
+    }
+
+    .event-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .event-thumbnail {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      margin-right: 15px;
+      border-radius: 5px;
+    }
+
+    .event-info h3 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    .event-details-expanded {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 80%;
+      height: 70%;
+      background: white;
+      z-index: 1000;
+      transform: translate(-50%, -50%) scale(1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      padding: 20px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      animation: expandDetail 0.5s ease-out forwards;
+    }
+
+    @keyframes expandDetail {
+      from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+      }
+
+      to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+
+    .event-details-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #f00;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    .navbar {
+      margin-bottom: 20px;
+    }
+
+    .navbar-brand {
+      font-weight: bold;
+      font-size: 1.5rem;
+      color: #ff545a !important;
+    }
+
+    .navbar-nav .nav-link {
+      font-size: 1rem;
+      margin-right: 15px;
+      color: #333;
+      transition: color 0.3s ease-in-out;
+    }
+
+    .navbar-nav .nav-link:hover {
+      color: #ff545a;
+    }
+
+    .bg-light {
+      background-color: #f9f9f9 !important;
+      border-bottom: 1px solid #ddd;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">Eats & Beats</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Go Back Home</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="form-container">
+    <div class="form-group">
+      <input type="text" id="cityZip" name="cityZip" placeholder="Search by location " required>
+    </div>
+    <div class="form-group">
+      <input type="text" id="searchEvent" name="searchEvent" placeholder="Search by Artist, Event, or Venue" required>
+    </div>
+    <div class="form-group">
+      <button type="button" id="useLocation">Use My Location</button>
+    </div>
+    <div class="form-group date-picker">
+      <input type="text" id="dateInput" placeholder="Select Date" readonly>
+      <input type="time" id="timeInput" placeholder="Select Time">
+      <div class="calendar" id="calendar">
+        <header>
+          <button type="button" id="prevMonth">◀</button>
+          <span id="monthYear"></span>
+          <button type="button" id="nextMonth">▶</button>
+        </header>
+        <table>
+          <thead>
+            <tr>
+              <th>Sun</th>
+              <th>Mon</th>
+              <th>Tue</th>
+              <th>Wed</th>
+              <th>Thu</th>
+              <th>Fri</th>
+              <th>Sat</th>
+            </tr>
+          </thead>
+          <tbody id="calendarBody">
+            <!-- Days will be dynamically generated -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="form-group">
+      <button type="button" id="searchBtn">Search</button>
+    </div>
+  </div>
+
+  <div id="categoriesContainer" class="categories-container">
+    <h2>Event Categories</h2>
+    <div id="categories" class="categories">
+      <!-- Categories dynamically generated here -->
+    </div>
+  </div>
+
+  <div id="eventsContainer" class="events-container">
+    <h2>Events</h2>
+    <div id="events" class="event-list">
+      <!-- Events dynamically generated here -->
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Fetch and display all categories
+      fetch('/api/categories')
+        .then(response => response.json())
+        .then(categories => {
+          const categoriesContainer = document.getElementById('categories');
+          if (categories.length === 0) {
+            categoriesContainer.innerHTML = "<p>No categories available.</p>";
+          } else {
+            categoriesContainer.innerHTML = categories
+              .map(category => `<button onclick="fetchEventsByCategory(${category.evcatg_id})">${category.description}</button>`)
+              .join('');
+          }
+        })
+        .catch(err => console.error('Error fetching categories:', err));
+
+      // Fetch and display all active events
+      fetch('/api/events')
+        .then(response => response.json())
+        .then(events => {
+          const eventsContainer = document.getElementById('events');
+          if (events.length === 0) {
+            eventsContainer.innerHTML = "<p>No events available.</p>";
+          } else {
+            eventsContainer.innerHTML = events
+              .map(event => `
+                <div class="event-card" onclick="showEventDetails(${event.event_id})">
+                  ${event.image_url ? `<img src="${event.image_url}" alt="${event.event_name}" class="event-thumbnail" />` : ''}
+                  <div class="event-info">
+                    <h3>${event.event_name}</h3>
+                    <p>${event.description || 'No description available.'}</p>
+                  </div>
+                </div>
+              `)
+              .join('');
+          }
+        })
+        .catch(err => console.error('Error fetching events:', err));
+    });
+
+    function fetchEventsByCategory(categoryId) {
+      fetch(`/api/events/category/${categoryId}`)
+        .then(response => response.json())
+        .then(events => {
+          const eventsContainer = document.getElementById('events');
+          if (events.length === 0) {
+            eventsContainer.innerHTML = "<p>No events available in this category.</p>";
+          } else {
+            eventsContainer.innerHTML = events
+              .map(event => `
+                <div class="event-card" onclick="showEventDetails(${event.event_id})">
+                  ${event.image_url ? `<img src="${event.image_url}" alt="${event.event_name}" class="event-thumbnail" />` : ''}
+                  <div class="event-info">
+                    <h3>${event.event_name}</h3>
+                    <p>${event.description || 'No description available.'}</p>
+                  </div>
+                </div>
+              `)
+              .join('');
+          }
+        })
+        .catch(err => console.error('Error fetching events:', err));
+    }
+
+    function showEventDetails(eventId) {
+      fetch(`/api/events/${eventId}`)
+        .then(response => response.json())
+        .then(event => {
+          const detailContainer = document.createElement('div');
+          detailContainer.className = 'event-details-expanded';
+          detailContainer.innerHTML = `
+            <button class="event-details-close" onclick="closeEventDetails()">X</button>
+            <h3>${event.event_name}</h3>
+            ${event.image_url ? `<img src="${event.image_url}" alt="${event.event_name}" style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 10px;" />` : ''}
+            <p>${event.description}</p>
+            <p>Venue: ${event.location}</p>
+            <p>Start Date: ${event.start_date}</p>
+            <p>End Date: ${event.end_date}</p>
+            <button onclick="proceedToPayment(${event.event_id})">Reserve Tickets</button>
+          `;
+          document.body.appendChild(detailContainer);
+          detailContainer.style.display = 'flex';
+        })
+        .catch(err => console.error('Error fetching event details:', err));
+    }
+
+    function closeEventDetails() {
+      const detailContainer = document.querySelector('.event-details-expanded');
+      if (detailContainer) {
+        detailContainer.remove();
+      }
+    }
+
+    function proceedToPayment(eventId) {
+      fetch('/api/reserve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventId, userId: 1 }) // Mock userId
+      })
+        .then(response => response.json())
+        .then(data => {
+          alert(`Reservation successful. Payment instructions: ${data.paymentInstructions}`);
+        })
+        .catch(err => console.error('Error during reservation:', err));
+    }
+  </script>
+
+  <footer id="footer" class="footer">
+    <div class="container">
+      <div class="footer-menu">
+        <div class="row">
+          <div class="col-sm-3">
+            <div class="navbar-header">
+              <a class="navbar-brand" href="index.html"><span>Eats & Beats</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hm-footer-copyright">
+        <div class="row">
+          <div class="col-sm-5"></div>
+          <div class="col-sm-7">
+            <div class="footer-social">
+              <a href="#"><i class="fa fa-facebook"></i></a>
+              <a href="#"><i class="fa fa-twitter"></i></a>
+              <a href="#"><i class="fa fa-linkedin"></i></a>
+              <a href="#"><i class="fa fa-google-plus"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="scroll-Top">
+      <div class="return-to-top">
+        <i class="fa fa-angle-up" id="scroll-top" data-toggle="tooltip" data-placement="top" title="" data-original-title="Back to Top" aria-hidden="true"></i>
+      </div>
+    </div>
+  </footer>
+</body>
+
+</html>

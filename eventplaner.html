@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Planner</title>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .sidebar {
+            height: 100vh;
+            background-color: red;
+            color: white;
+            padding-top: 20px;
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 10px 15px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+
+        .sidebar a:hover {
+            background-color: #b30000;
+        }
+
+        .sidebar a.active {
+            background-color: white;
+            color: red;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .edit-icon {
+            cursor: pointer;
+            color: red;
+            font-size: 18px;
+        }
+
+        .edit-icon:hover {
+            color: #b30000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-2 sidebar">
+                <h2 class="text-center">Event Planner</h2>
+                <a href="eventplaner.html" class="active"><i class="fas fa-calendar"></i> Event Planner</a>
+                <a href="eventplannerdashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a>
+            </nav>
+            <main class="col-md-10">
+                <div class="content">
+                    <h1>Manage Events</h1>
+                    <div class="d-flex justify-content-end mb-3">
+                        <button id="addEventBtn" class="btn btn-primary me-2"><i class="fas fa-plus"></i> Add Event</button>
+                        <button id="deleteEventBtn" class="btn btn-warning me-2"><i class="fas fa-trash"></i> Delete Event</button>
+                        <button id="editEventBtn" class="btn btn-secondary"><i class="fas fa-edit"></i> Edit Event</button>
+                    </div>
+                    <div id="content" class="mt-4"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById("addEventBtn").addEventListener("click", addEvent);
+        document.getElementById("deleteEventBtn").addEventListener("click", manageEventStatus);
+        document.getElementById("editEventBtn").addEventListener("click", editEvent);
+
+        function addEvent() {
+            document.getElementById("content").innerHTML = `
+                <h2>Add Event</h2>
+                <form id="addEventForm">
+                    <div class="mb-3">
+                        <label class="form-label">Event Name</label>
+                        <input type="text" id="eventName" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Event Category</label>
+                        <input type="text" id="eventCategory" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Location</label>
+                        <input type="text" id="location" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" id="startDate" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">End Date</label>
+                        <input type="date" id="endDate" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea id="eventDescription" class="form-control" rows="4" required></textarea>
+                    </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Loyalty Points</label>
+                        <input type="number" id="loyaltyPoints" class="form-control" min="0" required>
+                    </div>
+
+                     <div class="mb-3">
+                        <label class="form-label">Event Image</label>
+                        <input type="file" id="eventImage" class="form-control" accept="image/*">
+                    </div>
+
+                    <h3>Select Ticket Types</h3>
+                <label><input type="checkbox" id="ticketGeneral" value="General"> General</label>
+                <label>Seats: <input type="number" id="generalSeats" placeholder="Total Seats" disabled></label>
+                <label>Price for General: <input type="number" id="generalPrice" placeholder="Price"></label><br>
+                <label><input type="checkbox" id="ticketVIP" value="VIP"> VIP</label>
+                <label>Seats: <input type="number" id="vipSeats" placeholder="Total Seats" disabled></label>
+                <label>Price for VIP: <input type="number" id="vipPrice" placeholder="Price"></label><br>
+                <label><input type="checkbox" id="ticketBackstage" value="Backstage"> Backstage</label>
+                <label>Seats: <input type="number" id="backstageSeats" placeholder="Total Seats" disabled></label>
+                <label>Price for Backstage: <input type="number" id="backstagePrice" placeholder="Price"></label><br>
+                <button onclick="saveEvent()">Save Event</button>
+            `;
+
+            document.getElementById("ticketGeneral").addEventListener("change", function () {
+                document.getElementById("generalSeats").disabled = !this.checked;
+            });
+            document.getElementById("ticketVIP").addEventListener("change", function () {
+                document.getElementById("vipSeats").disabled = !this.checked;
+            });
+            document.getElementById("ticketBackstage").addEventListener("change", function () {
+                document.getElementById("backstageSeats").disabled = !this.checked;
+            });}
+
+            function saveEvent() {
+    const eventName = document.getElementById("eventName").value.trim();
+    const eventCategory = document.getElementById("eventCategory").value.trim();
+    const location = document.getElementById("location").value.trim();
+    const startDate = document.getElementById("startDate").value;
+    const endDate = document.getElementById("endDate").value;
+    const eventDescription = document.getElementById("eventDescription").value.trim();
+    const loyaltyPoints = parseInt(document.getElementById("loyaltyPoints").value || 0, 10);
+
+    const ticketGeneral = document.getElementById("ticketGeneral").checked;
+    const generalSeats = ticketGeneral ? parseInt(document.getElementById("generalSeats").value || 0, 10) : 0;
+    const generalPrice = ticketGeneral ? parseFloat(document.getElementById("generalPrice").value || 0) : 0;
+
+    const ticketVIP = document.getElementById("ticketVIP").checked;
+    const vipSeats = ticketVIP ? parseInt(document.getElementById("vipSeats").value || 0, 10) : 0;
+    const vipPrice = ticketVIP ? parseFloat(document.getElementById("vipPrice").value || 0) : 0;
+
+    const ticketBackstage = document.getElementById("ticketBackstage").checked;
+    const backstageSeats = ticketBackstage ? parseInt(document.getElementById("backstageSeats").value || 0, 10) : 0;
+    const backstagePrice = ticketBackstage ? parseFloat(document.getElementById("backstagePrice").value || 0) : 0;
+
+    const eventImage = document.getElementById("eventImage").files[0];
+
+    // Validate required fields
+    if (!eventName || !eventCategory || !location || !startDate || !endDate || !eventDescription) {
+        document.getElementById("content").innerHTML = `<p style="color: red;">Please fill all required fields.</p>`;
+        return;
+    }
+
+    // Ensure at least one ticket type is selected
+    if (!ticketGeneral && !ticketVIP && !ticketBackstage) {
+        document.getElementById("content").innerHTML = `<p style="color: red;">Please select at least one ticket type.</p>`;
+        return;
+    }
+
+    // Validate start and end dates
+    if (new Date(startDate) > new Date(endDate)) {
+        document.getElementById("content").innerHTML = `<p style="color: red;">Start date cannot be later than end date.</p>`;
+        return;
+    }
+
+    // Prepare form data
+    const formData = new FormData();
+    formData.append("eventName", eventName);
+    formData.append("eventCategory", eventCategory);
+    formData.append("location", location);
+    formData.append("startDate", startDate);
+    formData.append("endDate", endDate);
+    formData.append("description", eventDescription);
+    formData.append("loyaltyPoints", loyaltyPoints);
+
+    if (eventImage) {
+        formData.append("eventImage", eventImage);
+    }
+
+    const tickets = {
+        general: generalSeats,
+        vip: vipSeats,
+        backstage: backstageSeats,
+        prices: {
+            General: generalPrice,
+            VIP: vipPrice,
+            Backstage: backstagePrice,
+        },
+    };
+
+    formData.append("tickets", JSON.stringify(tickets));
+
+    // Send request to the backend
+    fetch("http://localhost:5000/api/events", {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: formData,
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to save event");
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById("content").innerHTML = `<p style="color: green;">Event "${data.eventName}" added successfully!</p>`;
+        })
+        .catch(err => {
+            console.error("Error saving event:", err);
+            document.getElementById("content").innerHTML = `<p style="color: red;">Failed to save the event.</p>`;
+        });
+}
+
+
+    // Fetch events for display
+    async function fetchEvents() {
+            try {
+                const response = await fetch("http://localhost:5000/api/events", {
+                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                });
+                if (!response.ok) throw new Error("Failed to fetch events");
+                const events = await response.json();
+                console.log("Fetched Events:", events); // Debugging
+                return events;
+            } catch (error) {
+                console.error("Error fetching events:", error);
+                document.getElementById("content").innerHTML = `<p style="color: red;">Failed to load events. Please try again.</p>`;
+            }
+        }
+
+    // Function to toggle event status (active/inactive)
+    async function manageEventStatus() {
+    console.log("Manage Event Status button clicked");
+    const events = await fetchEvents();
+    if (!events || events.length === 0) {
+        document.getElementById("content").innerHTML = `<p>No events found.</p>`;
+        return;
+    }
+
+    const eventRows = events.map(
+    (event) => `
+        <tr>
+            <td><img src="${event.image_url || 'default-image.jpg'}" alt="Event Image" style="max-height: 50px; border-radius: 4px;"></td>
+            <td>${event.event_name}</td>
+            <td>${event.eventCategory || 'N/A'}</td>
+            <td>${event.location}</td>
+            <td>${event.active ? "Active" : "Inactive"}</td>
+            <td>
+                ${
+                    event.active
+                        ? `<button class="btn btn-warning" onclick="toggleEventStatus(${event.event_id}, false)">Make Inactive</button>`
+                        : `<button class="btn btn-success" onclick="toggleEventStatus(${event.event_id}, true)">Make Active</button>`
+                }
+                <button class="btn btn-danger" onclick="deleteEvent(${event.event_id})">Delete</button>
+            </td>
+        </tr>`
+).join("");
+
+document.getElementById("content").innerHTML = `
+    <h2>Manage Events</h2>
+    <input type="text" id="eventSearch" placeholder="Search by name or location" oninput="filterTable()">
+    <table class="event-table table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="eventTableBody">
+            ${eventRows}
+        </tbody>
+    </table>
+`;
+
+    // Filter function for search bar
+    window.filterTable = function () {
+        const searchValue = document.getElementById("eventSearch").value.toLowerCase();
+        const rows = document.getElementById("eventTableBody").getElementsByTagName("tr");
+        for (let i = 0; i < rows.length; i++) {
+            const name = rows[i].getElementsByTagName("td")[0].textContent.toLowerCase();
+            const location = rows[i].getElementsByTagName("td")[1].textContent.toLowerCase();
+            rows[i].style.display = name.includes(searchValue) || location.includes(searchValue) ? "" : "none";
+        }
+    };
+}
+
+// Function to toggle event status (Make Active/Inactive)
+async function toggleEventStatus(eventId, newStatus) {
+    try {
+        const response = await fetch(`http://localhost:5000/api/events/${eventId}/status`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            body: JSON.stringify({ active: newStatus }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            alert(`Failed to update event status: ${errorData.error}`);
+            return;
+        }
+
+        const result = await response.json();
+        alert(result.message || "Event status updated successfully.");
+        manageEventStatus(); // Refresh the table after update
+    } catch (err) {
+        console.error("Error toggling event status:", err);
+        alert("Failed to update event status.");
+    }
+}
+
+
+
+
+
+
+
+    // Edit Event
+    async function editEvent() {
+            console.log("Edit Event button clicked");
+
+            // Fetch all events
+            const events = await fetchEvents();
+            if (!events || events.length === 0) {
+                document.getElementById("content").innerHTML = `<p>No events found.</p>`;
+                return;
+            }
+
+            // Display all events in a table with a search bar
+            const eventRows = events.map(event => `
+                <tr>
+                    <td>${event.event_name}</td>
+                    <td>${event.location}</td>
+                    <td>${event.start_date}</td>
+                    <td>${event.end_date}</td>
+                    <td>${event.active ? "Active" : "Inactive"}</td>
+                    <td>
+                        <i class="fas fa-edit edit-icon" onclick="loadEventDetails(${event.event_id})" title="Edit"></i>
+                    </td>
+                </tr>
+            `).join("");
+
+            document.getElementById("content").innerHTML = `
+                <h2>Edit Event</h2>
+                <input type="text" id="eventSearch" placeholder="Search by name or location" oninput="filterTable()">
+                <table class="event-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Location</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="eventTableBody">
+                        ${eventRows}
+                    </tbody>
+                </table>
+                <div id="editFormContainer"></div>
+            `;
+
+            // Add search functionality
+            window.filterTable = function () {
+                const searchValue = document.getElementById("eventSearch").value.toLowerCase();
+                const rows = document.getElementById("eventTableBody").getElementsByTagName("tr");
+                for (let i = 0; i < rows.length; i++) {
+                    const name = rows[i].getElementsByTagName("td")[0].textContent.toLowerCase();
+                    const location = rows[i].getElementsByTagName("td")[1].textContent.toLowerCase();
+                    rows[i].style.display = name.includes(searchValue) || location.includes(searchValue) ? "" : "none";
+                }
+            };
+        }
+
+        // Function to load event details into an editable form
+        async function loadEventDetails(eventId) {
+            try {
+                const response = await fetch(`http://localhost:5000/api/events/${eventId}`, {
+                    headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` },
+                });
+                if (!response.ok) {
+                    console.error("Error loading event:", response.status, response.statusText);
+                    throw new Error("Failed to load event details");
+                }
+
+                const event = await response.json();
+                console.log("Loaded event:", event);
+
+                document.getElementById("editFormContainer").innerHTML = `
+                    <form id="editEventForm">
+                        <label>Event Name: <input type="text" id="eventName" value="${event.event_name}" required></label><br>
+                        <label>Event Category: <input type="text" id="eventCategory" value="${event.evcatg_id || ""}" required></label><br>
+                        <label>Location: <input type="text" id="location" value="${event.location}" required></label><br>
+                        <label>Start Date: <input type="date" id="startDate" value="${event.start_date}" required></label><br>
+                        <label>End Date: <input type="date" id="endDate" value="${event.end_date}" required></label><br>
+                        <label>Description: <textarea id="eventDescription" rows="4" cols="50">${event.description || ""}</textarea></label><br>
+                        <button type="button" id="saveEditBtn">Save Changes</button>
+                        <div id="editMessage"></div>
+                    </form>
+                `;
+
+                setupEditFormButtons(eventId);
+            } catch (error) {
+                console.error("Error loading event:", error);
+                document.getElementById("editFormContainer").innerHTML = `<p style="color: red;">Error loading event details.</p>`;
+            }
+        }
+
+        // Function to setup form buttons for editing an event
+        function setupEditFormButtons(eventId) {
+            document.getElementById("saveEditBtn").addEventListener("click", async () => {
+                const updatedEvent = {
+                    eventName: document.getElementById("eventName").value,
+                    eventCategory: document.getElementById("eventCategory").value,
+                    location: document.getElementById("location").value,
+                    startDate: document.getElementById("startDate").value,
+                    endDate: document.getElementById("endDate").value,
+                    description: document.getElementById("eventDescription").value,
+                };
+                try {
+                    const response = await fetch(`http://localhost:5000/api/events/${eventId}`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                        },
+                        body: JSON.stringify(updatedEvent),
+                    });
+                    if (!response.ok) throw new Error("Failed to update event");
+                    const result = await response.json();
+                    document.getElementById("editMessage").innerHTML = `<p style="color: green;">${result.message || "Event updated successfully."}</p>`;
+                } catch (error) {
+                    console.error("Error updating event:", error);
+                    document.getElementById("editMessage").innerHTML = `<p style="color: red;">Failed to update the event. Please try again.</p>`;
+                }
+            });
+        }
+
+        // Fetch events for display
+        async function fetchEvents() {
+            try {
+                const response = await fetch("http://localhost:5000/api/events", {
+                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                });
+                if (!response.ok) throw new Error("Failed to fetch events");
+                const events = await response.json();
+                console.log("Fetched Events:", events); // Debugging
+                return events;
+            } catch (error) {
+                console.error("Error fetching events:", error);
+                document.getElementById("content").innerHTML = `<p style="color: red;">Failed to load events. Please try again.</p>`;
+            }
+        }
+
+</script>
+
+</body>
+</html>

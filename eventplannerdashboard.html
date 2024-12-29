@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Planner Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #f8f9fa;
+    }
+
+    .sidebar {
+      height: 100vh;
+      background-color: red;
+      color: white;
+      padding-top: 20px;
+    }
+
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      display: block;
+      padding: 10px 15px;
+      margin: 5px 0;
+      border-radius: 5px;
+    }
+
+    .sidebar a:hover {
+      background-color: #b30000;
+    }
+
+    .sidebar a.active {
+      background-color: white;
+      color: red;
+      font-weight: bold;
+    }
+
+    .content {
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    h1,
+    h2 {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .content-area {
+      padding: 20px;
+    }
+
+    .card-chart {
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      border: none;
+    }
+
+    canvas {
+      max-height: 300px;
+    }
+
+    .nav-link {
+      color: white;
+    }
+
+    .nav-link.active {
+      background-color: white !important;
+      color: red !important;
+    }
+
+    .edit-icon {
+      cursor: pointer;
+      color: red;
+      font-size: 18px;
+    }
+
+    .edit-icon:hover {
+      color: #b30000;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <nav class="col-md-2 sidebar">
+        <h2 class="text-center text-white">Event Planner</h2>
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link active" href="#" id="dashboardLink">
+              <i class="fas fa-home"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" id="reportsAnalyticsLink">
+              <i class="fas fa-chart-bar"></i> Reports & Analytics
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" id="viewEventsBtn">
+              <i class="fas fa-calendar"></i> View Events
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" id="manageAccountBtn">
+              <i class="fas fa-user-cog"></i> Manage Account
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="eventplaner.html" id="eventPlannerLink">
+              <i class="fas fa-arrow-right"></i> Go to Event Planner
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <main role="main" class="col-md-10 content-area">
+        <h2 class="mt-4">Event Planner Dashboard</h2>
+        <div id="analyticsContent" style="display: none;">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card card-chart">
+                <div class="card-header">
+                  <h5>Top-Selling Events</h5>
+                </div>
+                <div class="card-body">
+                  <canvas id="ticketsSoldChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="card card-chart">
+                <div class="card-header">
+                  <h5>Revenue by Event</h5>
+                </div>
+                <div class="card-body">
+                  <canvas id="revenueChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mt-4">
+            <div class="col-md-6">
+              <div class="card card-chart">
+                <div class="card-header">
+                  <h5>Events by Category</h5>
+                </div>
+                <div class="card-body">
+                  <canvas id="categoryChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="card card-chart">
+                <div class="card-header">
+                  <h5>Active vs Inactive Events</h5>
+                </div>
+                <div class="card-body">
+                  <canvas id="activeInactiveChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mt-4">
+            <div class="col-md-6">
+              <div class="card card-chart">
+                <div class="card-header">
+                  <h5>Monthly Events</h5>
+                </div>
+                <div class="card-body">
+                  <canvas id="monthlyEventsChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="card card-chart">
+                <div class="card-header">
+                  <h5>Average Ratings</h5>
+                </div>
+                <div class="card-body">
+                  <canvas id="ratingsChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="eventsContent" style="display: none;">
+          <h2>Your Events</h2>
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Event Name</th>
+                <th>Description</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="eventsTableBody"></tbody>
+          </table>
+        </div>
+
+        <div id="accountContent" style="display: none;">
+          <h2>Manage Account</h2>
+          <form>
+            <label for="email">Email:</label>
+            <input type="email" id="email" placeholder="Enter your email" required /><br /><br />
+            <label for="oldPassword">Old Password:</label>
+            <input type="password" id="oldPassword" placeholder="Enter old password" required /><br /><br />
+            <label for="newPassword">New Password:</label>
+            <input type="password" id="newPassword" placeholder="Enter new password" required /><br /><br />
+            <button type="button" onclick="updateAccount()">Update Account</button>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("viewEventsBtn").addEventListener("click", showEvents);
+      document.getElementById("manageAccountBtn").addEventListener("click", showAccount);
+      document.getElementById("reportsAnalyticsLink").addEventListener("click", showAnalytics);
+      fetchAnalyticsData();
+    });
+
+    function showEvents() {
+      document.getElementById("analyticsContent").style.display = "none";
+      document.getElementById("accountContent").style.display = "none";
+      document.getElementById("eventsContent").style.display = "block";
+      fetchEvents();
+    }
+
+    function showAccount() {
+      document.getElementById("analyticsContent").style.display = "none";
+      document.getElementById("eventsContent").style.display = "none";
+      document.getElementById("accountContent").style.display = "block";
+    }
+
+    function showAnalytics() {
+      document.getElementById("analyticsContent").style.display = "block";
+      document.getElementById("eventsContent").style.display = "none";
+      document.getElementById("accountContent").style.display = "none";
+    }
+
+    async function fetchEvents() {
+      try {
+        const response = await fetch("http://localhost:5000/api/events", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        if (!response.ok) throw new Error("Failed to fetch events");
+
+        const events = await response.json();
+        const tbody = document.getElementById("eventsTableBody");
+        tbody.innerHTML = events
+          .map(
+            (event) => `
+            <tr>
+              <td>${event.event_name}</td>
+              <td>${event.description || "N/A"}</td>
+              <td>${event.start_date}</td>
+              <td>${event.end_date}</td>
+              <td>${event.active ? "Active" : "Inactive"}</td>
+              <td><a href="eventplaner.html" class="fas fa-edit edit-icon" title="Edit"></a></td>
+            </tr>
+          `
+          )
+          .join("");
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
+    }
+
+    async function updateAccount() {
+  const email = document.getElementById("email").value.trim();
+  const oldPassword = document.getElementById("oldPassword").value.trim();
+  const newPassword = document.getElementById("newPassword").value.trim();
+
+  // Validate input fields
+  if (!email || !oldPassword || !newPassword) {
+    alert("Please fill in all fields.");
+    return;
+  }
+
+  if (newPassword.length < 8) {
+    alert("New password must be at least 8 characters long.");
+    return;
+  }
+
+  try {
+    // Show a loading message
+    alert("Updating your account, please wait...");
+
+    const response = await fetch("http://localhost:5000/api/users/update-password", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({ email, oldPassword, newPassword }),
+    });
+
+    if (!response.ok) {
+      // Parse the response to get detailed error messages
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to update account");
+    }
+
+    alert("Account updated successfully!");
+    // Optionally clear input fields after success
+    document.getElementById("oldPassword").value = "";
+    document.getElementById("newPassword").value = "";
+  } catch (error) {
+    console.error("Error updating account:", error.message);
+    alert(error.message || "Failed to update account. Please try again.");
+  }
+}
+
+
+    async function fetchAnalyticsData() {
+      try {
+        const [ticketsSold, revenue, categories, activeInactive, monthlyEvents, ratings] = await Promise.all([
+          fetchData("/api/analytics/tickets-sold"),
+          fetchData("/api/analytics/revenue"),
+          fetchData("/api/analytics/events-by-category"),
+          fetchData("/api/analytics/active-inactive"),
+          fetchData("/api/analytics/events-by-month"),
+          fetchData("/api/analytics/ratings"),
+        ]);
+
+        renderBarChart("ticketsSoldChart", ticketsSold, "Tickets Sold per Event");
+        renderBarChart("revenueChart", revenue, "Revenue per Event");
+        renderPieChart("categoryChart", categories, "Events by Category");
+        renderPieChart("activeInactiveChart", activeInactive, "Active vs Inactive Events");
+        renderLineChart("monthlyEventsChart", monthlyEvents, "Events by Month");
+        renderBarChart("ratingsChart", ratings, "Average Ratings per Event");
+      } catch (error) {
+        console.error("Error fetching analytics data:", error);
+      }
+    }
+
+    async function fetchData(endpoint) {
+      try {
+        const response = await fetch(`http://localhost:5000${endpoint}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        if (!response.ok) throw new Error(`Failed to fetch data from ${endpoint}`);
+        return await response.json();
+      } catch (error) {
+        console.error("Fetch error:", error);
+        throw error;
+      }
+    }
+
+    function renderBarChart(canvasId, data, title) {
+      const ctx = document.getElementById(canvasId).getContext("2d");
+      const labels = data.map((item) => item.event_name || item.category || item.month);
+      const values = data.map((item) => item.total_tickets || item.revenue || item.total_events || item.average_rating);
+
+      new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: title,
+              data: values,
+              backgroundColor: "rgba(255, 99, 132, 0.2)",
+              borderColor: "rgba(255, 99, 132, 1)",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+    }
+
+    function renderPieChart(canvasId, data, title) {
+      const ctx = document.getElementById(canvasId).getContext("2d");
+      const labels = data.map((item) => item.category || (item.active ? "Active" : "Inactive"));
+      const values = data.map((item) => item.total_events);
+
+      new Chart(ctx, {
+        type: "pie",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: title,
+              data: values,
+              backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+        },
+      });
+    }
+
+    function renderLineChart(canvasId, data, title) {
+      const ctx = document.getElementById(canvasId).getContext("2d");
+      const labels = data.map((item) => `Month ${item.month}`);
+      const values = data.map((item) => item.total_events);
+
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: title,
+              data: values,
+              borderColor: "rgba(75, 192, 192, 1)",
+              fill: false,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+        },
+      });
+    }
+  </script>
+</body>
+
+</html>
